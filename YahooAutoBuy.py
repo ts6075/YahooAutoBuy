@@ -3,24 +3,22 @@
 # 作者: Nick
 # 開始日期: 20210312
 # 程式目的: Yahoo商城下單程式
-# 版本記錄
-# v1.0 - 20210312 - 初版
 # #################
+import configparser            # 解析config
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
 # #################
 # # 基礎設定       #
 # #################
+config = configparser.ConfigParser()
+config.read('Config.ini')
 loginUrl = 'https://login.yahoo.com/?.done=https%3A%2F%2Ftw.dictionary.search.yahoo.com'
-username = 'xxxxx'
-password = 'xxxxxxxxxx'
-# commodityUrl = 'https://tw.buy.yahoo.com/gdsale/gdsale.asp?gdid=8378928'
-commodityUrl = 'https://tw.buy.yahoo.com/gdsale/gdsale.asp?gdid=9352727'
+username = config.get('Section_Info', 'loginEmail')         # 會員帳號
+password = config.get('Section_Info', 'password')           # 會員密碼
+commodityUrl = config.get('Section_Info', 'commodityUrl')   # 商品Url
+buyCount = int(config.get('Section_Info', 'buyCount')) - 1  # 購買數量,預設已經是一筆,故要減1
 
 print('#################')
 print('# 啟動中...     #')
@@ -49,6 +47,7 @@ print('#################')
 # #################
 i = 1
 print('#################')
+# 如商品處於開放購買倒數,則會進入迴圈,直到開放時自動進入購買程序
 while(True):
     try:
         print('第', i, '次載入商品頁面')
@@ -65,11 +64,12 @@ while(True):
         time.sleep(0.5)
 print('#################')
 
-# 購買數量增加一個(共2個)
+# 購買數量調整
 print('#################')
 print('# 購買數量調整中...       #')
-driver.find_element_by_class_name('hRJnbB').click()
-print('# 購買數量已增加一個      #')
+for i in range(buyCount):
+    driver.find_element_by_class_name('hRJnbB').click()
+print('# 購買數量已追加' + str(buyCount) + '個       #')
 
 # 點擊確認購買按鈕(進入付款階段)
 print('# 嘗試點擊確認購買按鈕... #')
